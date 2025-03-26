@@ -16,8 +16,7 @@ build() {
   cd "$srcdir/ttyimg-${pkgver}"
   mkdir -p build
   cd build
-  cmake .. \
-    -DCMAKE_BUILD_TYPE=Release \
+  cmake .. -DCMAKE_BUILD_TYPE=Release
   make
 }
 
