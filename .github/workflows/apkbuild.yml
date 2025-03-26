@@ -43,13 +43,21 @@ jobs:
           cp APKBUILD /home/builder/packages/ttyimg/
           chown builder /home/builder/packages/ttyimg/*
 
-      - name: Build APK
-        run: |
-          su builder -c "abuild-keygen -a -n"
-          BUILDER_KEY=$(find /home/builder/.abuild -name '*.rsa' | head -n 1)
-          echo "PACKAGER_PRIVKEY=\"$BUILDER_KEY\"" >> /home/builder/.abuild/abuild.conf
-          su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
-
+          - name: Build APK
+          run: |
+            su builder -c "abuild-keygen -a -n"
+            PUBKEY=$(find /home/builder/.abuild -name '*.rsa.pub' | head -n 1)
+            PRIVKEY=$(find /home/builder/.abuild -name '*.rsa' | head -n 1)
+  
+            # Trust the public key
+            cp "$PUBKEY" /etc/apk/keys/
+  
+            # Add private key to abuild config
+            echo "PACKAGER_PRIVKEY=\"$PRIVKEY\"" >> /home/builder/.abuild/abuild.conf
+            chown builder /etc/apk/keys/$(basename "$PUBKEY")
+  
+            su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
+  
       - name: Upload built APK
         uses: actions/upload-artifact@v4
         with:
