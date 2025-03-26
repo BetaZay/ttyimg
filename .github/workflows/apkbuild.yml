@@ -43,8 +43,8 @@ jobs:
           cp APKBUILD /home/builder/packages/ttyimg/
           chown builder /home/builder/packages/ttyimg/*
 
-          - name: Build APK
-          run: |
+      - name: Build APK
+        run: |
             su builder -c "abuild-keygen -a -n"
             PUBKEY=$(find /home/builder/.abuild -name '*.rsa.pub' | head -n 1)
             PRIVKEY=$(find /home/builder/.abuild -name '*.rsa' | head -n 1)
