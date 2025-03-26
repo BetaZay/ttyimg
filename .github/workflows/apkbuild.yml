@@ -22,11 +22,13 @@ jobs:
 
       - name: Set up user for abuild
         run: |
-          adduser -D builder
-          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
-          mkdir -p /home/builder/packages/ttyimg
-          chown -R builder /home/builder
-          chown -R builder /var/cache/distfiles
+            adduser -D builder
+            addgroup builder abuild
+            echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+            mkdir -p /home/builder/packages/ttyimg
+            chown -R builder /home/builder
+            chown -R builder /var/cache/distfiles
+  
 
       - name: Checkout source
         uses: actions/checkout@v4
