@@ -42,4 +42,3 @@ jobs:
           tag_name: latest
           name: ttyimg Latest Build
           files: ttyimg.tar.gz
-          token: ${{ secrets.GH_PAT }}
