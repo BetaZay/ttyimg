@@ -108,7 +108,7 @@ int main(void)
          with a transparent background if desired.
     */
     int text_w, text_h, text_channels;
-    const char *text_filename = "text.png";  // Adjust filename as needed
+    const char *text_filename = "txt.png";  // Adjust filename as needed
     unsigned char *text_data = stbi_load(text_filename, &text_w, &text_h, &text_channels, 4);
     if (!text_data) {
         fprintf(stderr, "Failed to load text overlay image %s\n", text_filename);
