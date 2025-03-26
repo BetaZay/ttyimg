@@ -8,7 +8,7 @@ arch="x86_64"
 license="MIT"
 depends=""
 makedepends="cmake pkgconf libdrm-dev"
-source="https://github.com/BetaZay/ttyimg-${pkgver}.tar.gz"
+source="ttyimg-1.0.tar.gz"
 sha512sums="SKIP"
 
 build() {
