@@ -5,8 +5,16 @@ set -e
 APP_NAME="ttyimg"
 BIN_DIR="/usr/local/bin"
 SHARE_DIR="/usr/local/share/${APP_NAME}"
-REPO_URL="https://github.com/BetaZay/ttyimg"
 ARCHIVE_URL="https://github.com/BetaZay/ttyimg/releases/latest/download/${APP_NAME}.tar.gz"
+
+# Check if script is run as root
+if [ "$(id -u)" -ne 0 ]; then
+  echo "❌ This script must be run as root. Try:"
+  echo ""
+  echo "  curl -sSL https://github.com/BetaZay/ttyimg/releases/latest/download/install.sh | sudo sh"
+  echo ""
+  exit 1
+fi
 
 echo "[*] Installing ${APP_NAME}..."
 
