@@ -28,17 +28,3 @@ jobs:
           cd ..
           cp build/ttyimg .
           echo "[✓] Build done"
-
-      - name: Create tarball
-        run: |
-          mkdir dist
-          cp ttyimg txt.png install.sh dist/
-          tar -czf ttyimg.tar.gz -C dist .
-          echo "[✓] Created ttyimg.tar.gz"
-
-      - name: Upload release artifact
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: latest
-          name: ttyimg Latest Build
-          files: ttyimg.tar.gz
