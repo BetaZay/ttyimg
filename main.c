@@ -17,6 +17,7 @@
 /* stb_image for loading images (text overlay) */
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+#include <linux/limits.h>
 
 /* Helper to clamp an integer value between 0 and 255 */
 static inline uint8_t clamp(int val) {
@@ -30,6 +31,20 @@ unsigned long get_time_ms() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
     return tv.tv_sec * 1000UL + tv.tv_usec / 1000;
+}
+
+const char *get_text_image_path() {
+    static char path[PATH_MAX];
+
+    // 1. Check if running in release mode (installed path)
+    const char *release_path = "/usr/local/share/ttyimg/txt.png";
+    if (access(release_path, F_OK) == 0) {
+        return release_path;
+    }
+
+    // 2. Fallback: assume dev mode (current directory)
+    snprintf(path, sizeof(path), "txt.png");
+    return path;
 }
 
 int main(void)
@@ -104,11 +119,12 @@ int main(void)
     }
 
     /* --- 2. Load the pre-made text image for overlay ---
-         This image (e.g. "text.png") should contain your text (e.g. "testing webcam...")
+         This image (e.g. "txt.png") should contain your text (e.g. "testing webcam...")
          with a transparent background if desired.
     */
+
     int text_w, text_h, text_channels;
-    const char *text_filename = "txt.png";  // Adjust filename as needed
+    const char *text_filename = get_text_image_path();
     unsigned char *text_data = stbi_load(text_filename, &text_w, &text_h, &text_channels, 4);
     if (!text_data) {
         fprintf(stderr, "Failed to load text overlay image %s\n", text_filename);
