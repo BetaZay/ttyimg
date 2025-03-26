@@ -43,7 +43,10 @@ jobs:
 
       - name: Build APK
         run: |
-          su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
+            su builder -c "abuild-keygen -a -n"
+            echo 'PACKAGER_PRIVKEY="/home/builder/.abuild/*.rsa"' >> /home/builder/.abuild/abuild.conf
+            su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
+        
 
       - name: Upload built APK
         uses: actions/upload-artifact@v4
