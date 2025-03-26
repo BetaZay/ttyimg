@@ -20,7 +20,7 @@ jobs:
           apk add alpine-sdk cmake git libdrm-dev pkgconf
 
       - name: Checkout source
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Create build tarball
         run: |
@@ -38,7 +38,7 @@ jobs:
           abuild -r
 
       - name: Upload built .apk
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ttyimg-apk
           path: /home/builder/packages/ttyimg/packages/**/*.apk
