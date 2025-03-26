@@ -4,7 +4,7 @@ name: Build APK (Alpine Linux)
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
   workflow_dispatch:
 
@@ -43,10 +43,10 @@ jobs:
 
       - name: Build APK
         run: |
-            su builder -c "abuild-keygen -a -n"
-            echo 'PACKAGER_PRIVKEY="/home/builder/.abuild/*.rsa"' >> /home/builder/.abuild/abuild.conf
-            su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
-        
+          su builder -c "abuild-keygen -a -n"
+          BUILDER_KEY=$(find /home/builder/.abuild -name '*.rsa' | head -n 1)
+          echo "PACKAGER_PRIVKEY=\"$BUILDER_KEY\"" >> /home/builder/.abuild/abuild.conf
+          su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
 
       - name: Upload built APK
         uses: actions/upload-artifact@v4
