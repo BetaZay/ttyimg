@@ -13,11 +13,13 @@
 #include <math.h>
 #include <drm_fourcc.h>
 #include <xf86drmMode.h>
+#include <dirent.h>
+#include <linux/limits.h>
 
 /* stb_image for loading images (text overlay) */
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-#include <linux/limits.h>
+
 
 /* Helper to clamp an integer value between 0 and 255 */
 static inline uint8_t clamp(int val) {
@@ -45,6 +47,31 @@ const char *get_text_image_path() {
     // 2. Fallback: assume dev mode (current directory)
     snprintf(path, sizeof(path), "txt.png");
     return path;
+}
+
+const char *find_drm_device() {
+    static char path[64];
+    DIR *d = opendir("/dev/dri");
+    if (!d) {
+        perror("opendir /dev/dri");
+        return NULL;
+    }
+
+    struct dirent *entry;
+    while ((entry = readdir(d)) != NULL) {
+        if (strncmp(entry->d_name, "card", 4) == 0) {
+            snprintf(path, sizeof(path), "/dev/dri/%s", entry->d_name);
+            int fd = open(path, O_RDWR);
+            if (fd >= 0) {
+                close(fd);
+                closedir(d);
+                return path;
+            }
+        }
+    }
+
+    closedir(d);
+    return NULL;
 }
 
 int main(void)
@@ -136,7 +163,12 @@ int main(void)
     int overlay_text_h = text_data ? (int)(text_h * text_scale) : 0;
 
     /* --- 3. Initialize DRM for full-screen primary framebuffer --- */
-    const char *dri_device = "/dev/dri/card0";
+    const char *dri_device = find_drm_device();
+    if (!dri_device) {
+        fprintf(stderr, "No usable DRM device found\n");
+        return EXIT_FAILURE;
+    }
+    
     drm_fb_t fb;
     if (!drm_fb_init(&fb, dri_device)) {
         fprintf(stderr, "Failed to initialize DRM\n");
