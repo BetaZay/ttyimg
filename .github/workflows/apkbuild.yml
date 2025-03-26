@@ -1,3 +1,5 @@
+# .github/workflows/build-apk.yml
+
 name: Build APK (Alpine Linux)
 
 on:
@@ -9,7 +11,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     container:
       image: alpine:latest
 
@@ -17,33 +18,34 @@ jobs:
       - name: Install build tools
         run: |
           apk update
-          apk add alpine-sdk sudo cmake git libdrm-dev pkgconf
+          apk add alpine-sdk cmake git libdrm-dev pkgconf curl
 
-      - name: Create builder user
+      - name: Set up user for abuild
         run: |
           adduser -D builder
-          echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
           mkdir -p /home/builder/packages/ttyimg
           chown -R builder /home/builder
+          chown -R builder /var/cache/distfiles
 
       - name: Checkout source
         uses: actions/checkout@v4
+        with:
+          path: ttyimg-src
 
-      - name: Copy project into user home
+      - name: Create tarball and APKBUILD
         run: |
-          cp -r . /home/builder/packages/ttyimg/
-          chown -R builder /home/builder/packages/ttyimg
+          cd ttyimg-src
+          tar -czf ttyimg-1.0.tar.gz --transform 's,^,ttyimg-1.0/,' *
+          mv ttyimg-1.0.tar.gz /home/builder/packages/ttyimg/
+          cp APKBUILD /home/builder/packages/ttyimg/
+          chown builder /home/builder/packages/ttyimg/*
 
-      - name: Build APK as user
+      - name: Build APK
         run: |
-          sudo -u builder -H sh -c '
-            cd /home/builder/packages/ttyimg
-            abuild-keygen -a -n
-            abuild checksum
-            abuild -r
-          '
+          su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
 
-      - name: Upload built .apk
+      - name: Upload built APK
         uses: actions/upload-artifact@v4
         with:
           name: ttyimg-apk
