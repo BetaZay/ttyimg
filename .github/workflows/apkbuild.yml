@@ -18,7 +18,7 @@ jobs:
       - name: Install build tools
         run: |
           apk update
-          apk add alpine-sdk cmake git libdrm-dev pkgconf curl
+          apk add alpine-sdk cmake git libdrm libdrm-dev pkgconf curl
 
       - name: Set up user for abuild
         run: |
