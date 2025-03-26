@@ -14,28 +14,34 @@ jobs:
       image: alpine:latest
 
     steps:
-      - name: Install dependencies
+      - name: Install build tools
         run: |
           apk update
-          apk add alpine-sdk cmake git libdrm-dev pkgconf
+          apk add alpine-sdk sudo cmake git libdrm-dev pkgconf
+
+      - name: Create builder user
+        run: |
+          adduser -D builder
+          echo "builder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+          mkdir -p /home/builder/packages/ttyimg
+          chown -R builder /home/builder
 
       - name: Checkout source
         uses: actions/checkout@v4
 
-      - name: Create build tarball
+      - name: Copy project into user home
         run: |
-          mkdir -p /home/builder/packages/ttyimg
-          tar -czf ttyimg-1.0.tar.gz --transform 's,^,ttyimg-1.0/,' \
-              main.c drm.c drm.h stb_image.h CMakeLists.txt txt.png APKBUILD
-          mv ttyimg-1.0.tar.gz /home/builder/packages/ttyimg/
-          cp APKBUILD /home/builder/packages/ttyimg/
+          cp -r . /home/builder/packages/ttyimg/
+          chown -R builder /home/builder/packages/ttyimg
 
-      - name: Build APK
-        working-directory: /home/builder/packages/ttyimg
+      - name: Build APK as user
         run: |
-          abuild-keygen -a -n
-          abuild checksum
-          abuild -r
+          sudo -u builder -H sh -c '
+            cd /home/builder/packages/ttyimg
+            abuild-keygen -a -n
+            abuild checksum
+            abuild -r
+          '
 
       - name: Upload built .apk
         uses: actions/upload-artifact@v4
