@@ -61,5 +61,5 @@ jobs:
       - name: Upload built APK
         uses: actions/upload-artifact@v4
         with:
-          name: ttyimg-apk
-          path: /home/builder/packages/ttyimg/packages/**/*.apk
+            name: ttyimg-apk
+            path: /home/builder/packages/x86_64/*.apk
