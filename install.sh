@@ -11,7 +11,7 @@ SHARE_DIR="/usr/local/share/${APP_NAME}"
 if [ "$(id -u)" -ne 0 ]; then
   echo "❌ This script must be run as root. Try:"
   echo ""
-  echo "  curl -sSL https://github.com/BetaZay/ttyimg/raw/main/install.sh | sudo sh"
+  echo "  curl -sSL https://github.com/BetaZay/ttyimg/raw/master/install.sh | sudo sh"
   echo ""
   exit 1
 fi
