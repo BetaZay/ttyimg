@@ -58,8 +58,16 @@ jobs:
   
             su builder -c "cd /home/builder/packages/ttyimg && abuild checksum && abuild -r"
   
+      - name: List APK output
+        run: ls -lh /home/builder/packages/x86_64
+
+      - name: Copy APK to /tmp for upload
+        run: |
+          cp /home/builder/packages/x86_64/*.apk /tmp/
+
       - name: Upload built APK
         uses: actions/upload-artifact@v4
         with:
             name: ttyimg-apk
-            path: /home/builder/packages/x86_64/*.apk
+            path: /tmp/*.apk
+  
