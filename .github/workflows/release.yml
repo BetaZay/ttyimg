@@ -42,5 +42,4 @@ jobs:
           tag_name: latest
           name: ttyimg Latest Build
           files: ttyimg.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_PAT }}
