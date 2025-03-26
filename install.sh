@@ -24,7 +24,7 @@ cd "$TMP_DIR"
 
 # 2. Download release tarball
 echo "[*] Downloading latest release..."
-wget -q --show-progress "$ARCHIVE_URL" -O "${APP_NAME}.tar.gz"
+wget -q "$ARCHIVE_URL" -O "${APP_NAME}.tar.gz"
 
 # 3. Extract
 tar -xzf "${APP_NAME}.tar.gz"
