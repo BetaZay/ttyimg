@@ -1,0 +1,44 @@
+name: Build APK (Alpine Linux)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    container:
+      image: alpine:latest
+
+    steps:
+      - name: Install dependencies
+        run: |
+          apk update
+          apk add alpine-sdk cmake git libdrm-dev pkgconf
+
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Create build tarball
+        run: |
+          mkdir -p /home/builder/packages/ttyimg
+          tar -czf ttyimg-1.0.tar.gz --transform 's,^,ttyimg-1.0/,' \
+              main.c drm.c drm.h stb_image.h CMakeLists.txt txt.png APKBUILD
+          mv ttyimg-1.0.tar.gz /home/builder/packages/ttyimg/
+          cp APKBUILD /home/builder/packages/ttyimg/
+
+      - name: Build APK
+        working-directory: /home/builder/packages/ttyimg
+        run: |
+          abuild-keygen -a -n
+          abuild checksum
+          abuild -r
+
+      - name: Upload built .apk
+        uses: actions/upload-artifact@v3
+        with:
+          name: ttyimg-apk
+          path: /home/builder/packages/ttyimg/packages/**/*.apk
