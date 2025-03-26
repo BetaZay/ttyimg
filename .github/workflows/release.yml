@@ -1,0 +1,46 @@
+name: Build and Release Tarball
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+
+    steps:
+      - name: Install build tools
+        run: |
+          apk update
+          apk add alpine-sdk cmake git libdrm-dev pkgconf curl tar gzip
+
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Build ttyimg
+        run: |
+          mkdir -p build && cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+          make
+          cd ..
+          cp build/ttyimg .
+          echo "[✓] Build done"
+
+      - name: Create tarball
+        run: |
+          mkdir dist
+          cp ttyimg txt.png install.sh dist/
+          tar -czf ttyimg.tar.gz -C dist .
+          echo "[✓] Created ttyimg.tar.gz"
+
+      - name: Upload release artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: ttyimg Latest Build
+          files: ttyimg.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
